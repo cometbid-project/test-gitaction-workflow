@@ -5,11 +5,7 @@ inputs:
   java_version:
     type: string
     description: Java version
-  
-defaults:
-  run:
-    shell: bash
-    
+
 runs:
   using: composite
   steps:
@@ -36,6 +32,7 @@ runs:
           
     - name: Build with Maven (POM)
       run: mvn -B package --file pom.xml
+      shell: bash
 
     - name: Set up JDK ${{ inputs.java_version }}
       uses: actions/setup-java@v4
@@ -45,9 +42,11 @@ runs:
 
     - name: Build with Maven (Coverage)
       run: mvn -B package -Pcoverage
+      shell: bash
     
     - run: mvn -B test -P coverage --no-transfer-progress
       name: Run project tests
+      shell: bash
     - uses: codecov/codecov-action@v1
       name: Collect code coverage
       with:
