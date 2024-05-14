@@ -28,6 +28,6 @@ jobs:
     - name: Maven CI
       uses: ./.github/actions/maven-ci
       with:
-        version: '17'
+        java_version: '17'
 
           
