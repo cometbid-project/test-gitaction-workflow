@@ -1,0 +1,25 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ "*" ]
+    paths: ["**.java", ".github/workflows/maven.yml", "pom.xml"]
+  pull_request:
+    branches: [ "*" ]
+    
+  #workflow_dispatch:
+
+jobs:
+  maven-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+        
+    - name: Maven CI
+      uses: ./.github/actions/maven-ci
+      with:
+        java_version: '17'
+
+          
