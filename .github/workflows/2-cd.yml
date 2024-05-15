@@ -22,6 +22,8 @@ jobs:
         
   maven-publish-github-pkg:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     env:
         GITHUB_TOKEN: ${{ github.token }}
         artifact_name: test-gitaction-workflow
