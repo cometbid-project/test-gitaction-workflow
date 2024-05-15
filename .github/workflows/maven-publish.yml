@@ -33,7 +33,7 @@ jobs:
     publish-job:
         runs-on: ubuntu-latest
         permissions:
-        packages: write       
+            packages: write       
         env:
             GITHUB_TOKEN: ${{ github.token }}
             artifact_name: test-gitaction-workflow
