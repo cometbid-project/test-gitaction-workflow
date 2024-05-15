@@ -4,6 +4,9 @@
 name: Maven Package
 
 on:
+  push:
+    branches:
+      - feature/maven-gitops
   release:
     types: [created]
 jobs:
