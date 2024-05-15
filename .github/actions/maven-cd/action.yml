@@ -60,6 +60,8 @@ runs:
     - name: Publish to GitHub Packages Apache Maven
       #run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
       run: mvn deploy -PgithubDeploy -X
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
       shell: bash
         
     - run: mvn --batch-mode --update-snapshots verify

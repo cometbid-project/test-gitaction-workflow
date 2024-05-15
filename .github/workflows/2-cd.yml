@@ -20,13 +20,10 @@ jobs:
       with:
         java-version: '17'
         
-  maven-publish-github-pkg:
+  maven-publish-cd:
     runs-on: ubuntu-latest
     permissions:
       packages: write
-    env:
-        GITHUB_TOKEN: ${{ github.token }}
-        artifact_name: test-gitaction-workflow
     needs: maven-publish-ci
     steps:
     - uses: actions/checkout@v4
@@ -39,3 +36,6 @@ jobs:
         maven-token: ${{ secrets.OSS_SONATYPE_PASSWORD }}
         maven-gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
         maven-gpg-passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        artifact_name: test-gitaction-workflow
