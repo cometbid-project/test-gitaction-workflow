@@ -1,0 +1,93 @@
+name: Maven Continuous Deployment
+description: Runs standard CD steps for Maven based projects
+
+inputs:
+  java-version:
+    type: string
+    description: Java version
+    default: '17'
+  distribution:
+    type: string
+    description: Java distribution
+    default: 'temurin'
+  server-id:
+    type: string
+    description: Value of the distributionManagement/repository/id field of the pom.xml
+    default: github
+  settings-path: 
+    type: string
+    description: Location for the settings.xml file
+    default: ${{ github.workspace }}
+  maven-username:
+    type: string
+    required: true
+    description: Maven Central username
+  maven-token:
+    type: string
+    required: true
+    description: Maven Central password
+  maven-gpg-private-key:
+    type: string
+    required: true
+    description: GPG key for signing Maven releases
+  maven-gpg-passphrase:
+    type: string
+    required: true
+    description: GPG passphrase
+
+runs:
+  using: composite
+  steps:
+    - name: Set up JDK ${{ inputs.java-version }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: ${{ inputs.distribution }}
+        server-id: ${{ inputs.server-id }}
+        settings-path: ${{ inputs.settings-path }}
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
+      shell: bash
+    - name: Get the release version
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_OUTPUT
+      shell: bash
+      
+    - name: Update package version
+      run: mvn versions:set -DnewVersion=${{ steps.get_version.outputs.VERSION }}
+      shell: bash
+      
+    - name: Publish to GitHub Packages Apache Maven
+      #run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+      run: mvn deploy -PgithubDeploy
+      shell: bash
+        
+    - run: mvn --batch-mode --update-snapshots verify
+      shell: bash
+    - run: mkdir staging && cp target/*.jar staging
+      shell: bash
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Package
+        path: staging
+    - name: Set up Maven Central Repository
+      uses: actions/setup-java@v4
+      with:
+        distribution: "adopt"
+        java-version: ${{ inputs.java-version }}
+        server-id: central
+        server-username: ${{ inputs.maven-username }}
+        server-password: ${{ inputs.maven-token }}
+        gpg-private-key: ${{ inputs.maven-gpg-private-key }}
+        gpg-passphrase: ${{ inputs.maven-gpg-passhprase }}
+
+    - name: Update package version
+      run: mvn versions:set -DnewVersion=${{ steps.get_version.outputs.VERSION }}
+      shell: bash
+    - name: Publish to Apache Maven Central
+      run: mvn --batch-mode clean deploy -P central -DskipTests=true
+      shell: bash
+      env:
+        MAVEN_USERNAME: ${{ inputs.maven-username }}
+        MAVEN_CENTRAL_TOKEN: ${{ inputs.maven-token }}
+        MAVEN_GPG_PASSPHRASE: ${{ inputs.maven-gpg-passhprase }}

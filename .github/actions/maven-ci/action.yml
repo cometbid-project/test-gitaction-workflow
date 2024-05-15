@@ -2,17 +2,17 @@ name: Maven Continuous Integration Action
 description: Runs standard CI steps for Maven based projects
 
 inputs:
-  java_version:
+  java-version:
     type: string
     description: Java version
 
 runs:
   using: composite
   steps:
-    - name: Set up JDK ${{ inputs.java_version }}
+    - name: Set up JDK ${{ inputs.java-version }}
       uses: actions/setup-java@v4
       with:
-        java-version: ${{ inputs.java_version }}
+        java-version: ${{ inputs.java-version }}
         distribution: 'adopt'
         cache: maven
 
@@ -34,11 +34,11 @@ runs:
       run: mvn -B package --file pom.xml
       shell: bash
 
-    - name: Set up JDK ${{ inputs.java_version }}
+    - name: Set up JDK ${{ inputs.java-version }}
       uses: actions/setup-java@v4
       with:
         distribution: 'adopt'
-        java-version: ${{ inputs.java_version }}
+        java-version: ${{ inputs.java-version }}
 
     - name: Build with Maven (Coverage)
       run: mvn -B package -Pcoverage
