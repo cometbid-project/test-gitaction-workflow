@@ -4,9 +4,6 @@
 name: Continuous Deployment
 
 on:
-  push:
-    branches:
-      - feature/maven-gitops
   release:
     types: [created]
 jobs:

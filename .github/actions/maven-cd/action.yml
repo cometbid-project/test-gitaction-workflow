@@ -43,8 +43,6 @@ runs:
       with:
         java-version: ${{ inputs.java-version }}
         distribution: ${{ inputs.distribution }}
-        # server-id: ${{ inputs.server-id }}
-        # settings-path: ${{ inputs.settings-path }}
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       shell: bash
