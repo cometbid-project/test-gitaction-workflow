@@ -11,9 +11,6 @@ on:
     types: [created]
 jobs:
   maven-publish-ci:
-    permissions:
-      packages: write
-      contents: read
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
