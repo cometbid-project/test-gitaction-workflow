@@ -12,11 +12,6 @@ on:
 jobs:
   maven-publish-ci:
     runs-on: ubuntu-latest
-      
-    permissions:
-      contents: read
-      packages: write
-
     steps:
     - name: Checkout
       uses: actions/checkout@v4
