@@ -61,8 +61,6 @@ runs:
       #run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
       run: mvn deploy -PgithubDeploy
       shell: bash
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
         
     - run: mvn --batch-mode --update-snapshots verify
       shell: bash
