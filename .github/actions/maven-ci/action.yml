@@ -1,0 +1,54 @@
+name: Maven Continuous Integration Action
+description: Runs standard CI steps for Maven based projects
+
+inputs:
+  java-version:
+    type: string
+    description: Java version
+
+runs:
+  using: composite
+  steps:
+    - name: Set up JDK ${{ inputs.java-version }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: 'adopt'
+        cache: maven
+
+    - name: Code vulnerability scanning
+      uses: anchore/scan-action@v3
+      id: scan
+      with:
+        path: "${{ github.workspace }}"
+        fail-build: false
+        severity-cutoff: high
+        acs-report-enable: true
+    - name: Upload vulnerability report
+      uses: github/codeql-action/upload-sarif@v2
+      if: success() || failure()
+      with:
+        sarif_file: ${{ steps.scan.outputs.sarif }}
+          
+    - name: Build with Maven (POM)
+      run: mvn -B package --file pom.xml
+      shell: bash
+
+    - name: Set up JDK ${{ inputs.java-version }}
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'adopt'
+        java-version: ${{ inputs.java-version }}
+
+    - name: Build with Maven (Coverage)
+      run: mvn -B package -Pcoverage
+      shell: bash
+    
+    - run: mvn -B test -P coverage --no-transfer-progress
+      name: Run project tests
+      shell: bash
+    - uses: codecov/codecov-action@v1
+      name: Collect code coverage
+      with:
+        file: ./**/target/site/jacoco/jacoco.xml
+        name: codecov

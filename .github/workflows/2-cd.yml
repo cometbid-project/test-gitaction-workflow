@@ -1,0 +1,38 @@
+# This workflow will build a package using Maven and then publish it to GitHub packages and Maven when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+
+name: Continuous Deployment
+
+on:
+  release:
+    types: [created]
+jobs:
+  maven-publish-ci:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Maven CI
+      uses: ./.github/actions/maven-ci
+      with:
+        java-version: '17'
+        
+  maven-publish-cd:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    needs: maven-publish-ci
+    steps:
+    - uses: actions/checkout@v4
+      name: Checkout
+    - uses: ./.github/actions/maven-cd
+      name: Maven CD
+      with:
+        java-version: '17'
+        maven-username: ${{ secrets.OSS_SONATYPE_USERNAME }}
+        maven-token: ${{ secrets.OSS_SONATYPE_PASSWORD }}
+        maven-gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+        maven-gpg-passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        artifact_name: test-gitaction-workflow
